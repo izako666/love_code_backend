@@ -11,7 +11,7 @@ firebase_admin.initialize_app(cred)
 # Initialize Firestore
 db = firestore.client()
 
-@app.route('/send_notification_alert', methods=['POST'])
+@app.route('/send_notification_alert', endpoint='send_notification_alert', methods=['POST'])
 def send_notification():
     try:
         # Get data from request
@@ -55,7 +55,7 @@ def send_notification():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-@app.route('/send_notification', methods=['POST'])
+@app.route('/send_notification', endpoint='send_notification',  methods=['POST'])
 def send_notification():
     try:
         # Get data from request
