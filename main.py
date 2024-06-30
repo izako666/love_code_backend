@@ -31,6 +31,18 @@ def send_notification():
             # Create the message
             message = messaging.Message(
                 android=messaging.AndroidConfig(
+                    data={
+                           "default_vibrate_timings": False,
+    "vibrate_timings": [
+                "0.0s",
+                "0.2s",
+                "0.1s",
+                "0.2s",
+                "0.3s",
+                "0.1s",
+                "0.4s"
+     ],
+                    },
                     priority='high',
                        notification=messaging.AndroidNotification(
                 title=title,
