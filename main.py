@@ -36,7 +36,7 @@ def send_notification():
                 title=title,
                 body=message,
                 channel_id="alert_channel",
-                vibrate_timings_millis=[0, 1000, 500, 1000]  # Vibration pattern in milliseconds
+                vibrate_timings_millis=[0, 1000, 500, 1000, 500, 1000, 500, 1000, 500, 1000]  # Vibration pattern in milliseconds
             ),
                 ),
                 notification=messaging.Notification(
