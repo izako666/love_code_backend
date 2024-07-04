@@ -41,8 +41,8 @@ def send_notification():
                 "0.1s",
                 "0.4s"
      ]),
-     "message_type": "text/alert",
-     "message_id": message_id
+     "messagetype": "text/alert",
+     "message_id": str(message_id)
                     },
                     priority='high',
                        notification=messaging.AndroidNotification(
@@ -99,8 +99,8 @@ def send_notification():
                 "0.1s",
                 "0.4s"
      ]),
-     "message_type": "text/draw",
-     "message_id": message_id
+     "messagetype": "text/draw",
+     "message_id": str(message_id)
                     },
                     priority='high',
                        notification=messaging.AndroidNotification(
@@ -146,8 +146,8 @@ def send_notification():
             # Create the message
             message = messaging.Message(
                 data={
-                    "message_type": "text",
-                    "message_id": message_id
+                    "messagetype": "text",
+                    "message_id": str(message_id)
 
                 },
                 notification=messaging.Notification(
