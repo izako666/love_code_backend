@@ -186,7 +186,7 @@ def send_effect():
             # Create the message
             message = messaging.Message(
                 data={
-                    "effect_type": jsonify(effect_type),
+                    "effect_type": str(effect_type),
                 },
               
                 token=push_token,
