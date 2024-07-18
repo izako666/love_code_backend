@@ -249,10 +249,8 @@ def delete_user():
 
         # Stream results from both queries
         docs_user_id = list(query_user_id.stream())
-        doc1count = len(docs_user_id)
 
         docs_other_user_id = list(query_other_user_id.stream())
-        doc2count = len(docs_other_user_id)
 
         # Combine results
         all_docs = docs_user_id + docs_other_user_id
@@ -268,17 +266,8 @@ def delete_user():
             first_doc = next(iter(unique_docs))
             document_id = first_doc.id
 
-            if doc1count > 0:
-                db.collection("chats").document(document_id).update({
-                    "user_id": ""
-                })
-            elif doc2count > 0:
-                db.collection("chats").document(document_id).update({
-                    "other_user_id": ""
-                })
             chat_doc_final = db.collection("chats").document(document_id).get()
-            if chat_doc_final.to_dict()["user_id"] == "" and chat_doc_final.to_dict()["other_user_id"] == "":
-                delete_document_and_subcollections(db.collection("chats").document(document_id))
+            delete_document_and_subcollections(db.collection("chats").document(document_id))
 
         # Delete the user
         auth.delete_user(user_uid)
