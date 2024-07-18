@@ -213,6 +213,18 @@ def verify_password(email, password):
     response = requests.post(url, json=payload)
     return response.json()
 
+def delete_document_and_subcollections(doc_ref):
+    # Get all subcollections of the document
+    subcollections = doc_ref.collections()
+    
+    for subcollection in subcollections:
+        # For each subcollection, get all documents
+        for subdoc in subcollection.stream():
+            # Recursively delete each document and its subcollections
+            delete_document_and_subcollections(subdoc.reference)
+    
+    # Delete the document itself
+    doc_ref.delete()
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
     try:
@@ -227,6 +239,46 @@ def delete_user():
 
         # Get user UID from the response
         user_uid = verify_response['localId']
+        # Create references to the "chats" collection
+        chats_ref = db.collection("chats")
+
+        # Create queries for "user_id" and "other_user_id"
+        query_user_id = chats_ref.where("user_id", "==", user_uid)
+
+        query_other_user_id = chats_ref.where("other_user_id", "==", user_uid)
+
+        # Stream results from both queries
+        docs_user_id = list(query_user_id.stream())
+        doc1count = len(docs_user_id)
+
+        docs_other_user_id = list(query_other_user_id.stream())
+        doc2count = len(docs_other_user_id)
+
+        # Combine results
+        all_docs = docs_user_id + docs_other_user_id
+        # Remove duplicates (if any)
+        unique_docs = {doc.id: doc for doc in all_docs}.values()
+
+        # Initialize variable to store the document ID
+        document_id = None
+
+        # Check if unique_docs is not empty
+        if unique_docs:
+        # Get the first document and store its ID
+            first_doc = next(iter(unique_docs))
+            document_id = first_doc.id
+
+            if doc1count > 0:
+                db.collection("chats").document(document_id).update({
+                    "user_id": ""
+                })
+            elif doc2count > 0:
+                db.collection("chats").document(document_id).update({
+                    "other_user_id": ""
+                })
+            chat_doc_final = db.collection("chats").document(document_id).get()
+            if chat_doc_final.to_dict()["user_id"] == "" and chat_doc_final.to_dict()["other_user_id"] == "":
+                delete_document_and_subcollections(db.collection("chats").document(document_id))
 
         # Delete the user
         auth.delete_user(user_uid)
