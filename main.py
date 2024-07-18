@@ -1,6 +1,7 @@
 from flask import Flask, json, request, jsonify
 import firebase_admin
-from firebase_admin import credentials, firestore, messaging
+from firebase_admin import credentials, firestore, messaging, auth
+import requests
 
 app = Flask(__name__)
 
@@ -10,7 +11,7 @@ firebase_admin.initialize_app(cred)
 
 # Initialize Firestore
 db = firestore.client()
-
+FIREBASE_WEB_API_KEY = 'AIzaSyBqcNWm95-f7dcNOaG__uf-VmX71bJ6Aq4'
 @app.route('/send_notification_alert', endpoint='send_notification_alert', methods=['POST'])
 def send_notification():
     try:
@@ -200,6 +201,39 @@ def send_effect():
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+def verify_password(email, password):
+    # Verify user email and password using Firebase Authentication REST API
+    url = f'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}'
+    payload = {
+        "email": email,
+        "password": password,
+        "returnSecureToken": True
+    }
+    response = requests.post(url, json=payload)
+    return response.json()
+
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+
+        # Verify the user's password
+        verify_response = verify_password(email, password)
+        if 'error' in verify_response:
+            return jsonify({"error": "Invalid email or password"}), 400
+
+        # Get user UID from the response
+        user_uid = verify_response['localId']
+
+        # Delete the user
+        auth.delete_user(user_uid)
+
+        return jsonify({"message": "User deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=False)
