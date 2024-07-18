@@ -2,8 +2,10 @@ from flask import Flask, json, request, jsonify
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging, auth
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate('serviceaccount.json')
